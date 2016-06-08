@@ -11,34 +11,44 @@ use Hackaton\ImageStorage\Loaders\GuzzleLoader;
 use Hackaton\ImageStorage\Loaders\ILoader;
 use Hackaton\ImageStorage\Resolvers\MvcResolver;
 
-class Container implements IContainer {
-  use ContainerTrait;
+class Container implements IContainer
+{
+    use ContainerTrait;
 
-  public function callableResolverFactory() {
-    $service = new MvcResolver();
+    public function callableResolverFactory()
+    {
+        $service = new MvcResolver();
 
-    return $service;
-  }
+        return $service;
+    }
 
-  public function loaderFactory() {
-    $service = new GuzzleLoader();
+    public function loaderFactory()
+    {
+        $service = new GuzzleLoader();
 
-    return $service;
-  }
+        return $service;
+    }
 
-  public function imageManagerFactory() {
-    $processor = new Processor();
-    $storage = new Md5Split3PairsAsLevelsStorage($this->getParameter('storageDir'));
-    $service = new Manager($processor, $storage, $this->getParameter('profiles'));
+    public function imageManagerFactory()
+    {
+        $processor = new Processor();
+        $storage = new Md5Split3PairsAsLevelsStorage($this->getParameter('storageDir'));
+        $service = new Manager(
+            $processor,
+            $storage,
+            $this->getParameter('profiles'),
+            $this->getParameter('excludedImages')
+        );
 
-    return $service;
-  }
+        return $service;
+    }
 
-  public function symfonyRequestProviderFactory() {
-    /** @var ILoader $loader */
-    $loader = $this->getService('loader');
-    $service = new SymfonyRequestProvider($loader);
+    public function symfonyRequestProviderFactory()
+    {
+        /** @var ILoader $loader */
+        $loader = $this->getService('loader');
+        $service = new SymfonyRequestProvider($loader);
 
-    return $service;
-  }
+        return $service;
+    }
 }
