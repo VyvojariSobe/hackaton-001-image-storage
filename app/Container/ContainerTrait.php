@@ -1,52 +1,58 @@
 <?php
 namespace Hackaton\ImageStorage\Container;
 
-use Hackaton\ImageStorage\ServiceMustBeObjectException;
-use Hackaton\ImageStorage\ServiceNotFoundException;
+use Hackaton\ImageStorage\Exceptions\ServiceMustBeObjectException;
+use Hackaton\ImageStorage\Exceptions\ServiceNotFoundException;
 
-trait ContainerTrait {
-  protected $parameters = [];
-  protected $services = [];
+trait ContainerTrait
+{
+    protected $parameters = [];
+    protected $services = [];
 
-  public function __construct(array $parameters) {
-    $this->parameters = $parameters;
-  }
-
-  public function setParameter($key, $value) {
-    $this->parameters[$key] = $value;
-  }
-
-  public function getParameter($key, $default = null) {
-    if (isset($this->parameters[$key])) {
-      return $this->parameters[$key];
+    public function __construct(array $parameters)
+    {
+        $this->parameters = $parameters;
     }
 
-    return $default;
-  }
-
-  public function setService($name, $service) {
-    if (!is_object($service)) {
-      throw new ServiceMustBeObjectException(sprintf('Service factory must return object, got "%s"!', gettype($service)));
+    public function setParameter($key, $value)
+    {
+        $this->parameters[$key] = $value;
     }
 
-    return $this->services[$name] = $service;
-  }
+    public function getParameter($key, $default = null)
+    {
+        if (isset($this->parameters[$key])) {
+            return $this->parameters[$key];
+        }
 
-  public function getService($name) {
-    if (isset($this->services[$name])) {
-      return $this->services[$name];
+        return $default;
     }
 
-    if (!method_exists($this, $name . 'Factory')) {
-      throw new ServiceNotFoundException(sprintf('Service "%s" not found!', $name));
+    public function setService($name, $service)
+    {
+        if (!is_object($service)) {
+            throw new ServiceMustBeObjectException(sprintf('Service factory must return object, got "%s"!', gettype($service)));
+        }
+
+        return $this->services[$name] = $service;
     }
 
-    $service = $this->{$name . 'Factory'}();
+    public function getService($name)
+    {
+        if (isset($this->services[$name])) {
+            return $this->services[$name];
+        }
 
-    if (!is_object($service)) {
-      throw new ServiceMustBeObjectException(sprintf('Service factory must return object, got "%s"!', gettype($service)));
+        if (!method_exists($this, $name . 'Factory')) {
+            throw new ServiceNotFoundException(sprintf('Service "%s" not found!', $name));
+        }
+
+        $service = $this->{$name . 'Factory'}();
+
+        if (!is_object($service)) {
+            throw new ServiceMustBeObjectException(sprintf('Service factory must return object, got "%s"!', gettype($service)));
+        }
+
+        return $this->services[$name] = $service;
     }
-
-    return $this->services[$name] = $service;
-  }
 }

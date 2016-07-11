@@ -1,11 +1,13 @@
 <?php
 namespace Hackaton\ImageStorage\Container;
 
-trait ContainerAwareTrait {
+trait ContainerAwareTrait
+{
   /** @var IContainer */
-  protected $container;
+    protected $container;
 
-  public function __construct(IContainer $container) {
-    $this->container = $container;
-  }
+    public function __construct(IContainer $container)
+    {
+        $this->container = $container;
+    }
 }
